@@ -97,8 +97,19 @@ class CardPayment extends Payment {
             return false;
         }
 
-        if (!preg_match('/^(0[1-9]|1[0-2])\/([0-9]{2})$/', $this->expiryDate)) {
+        if (!preg_match('/^(0[1-9]|1[0-2])\/([0-9]{2})$/', $this->expiryDate, $matches)) {
             $this->log("Ошибка: неверный формат срока действия (ожидается MM/YY)");
+            return false;
+        }
+
+        $cardMonth = (int)$matches[1]; 
+        $cardYear = (int)("20" . $matches[2]);
+
+        $currentMonth = (int)date('m'); 
+        $currentYear = (int)date('Y'); 
+
+        if ($cardYear < $currentYear || ($cardYear === $currentYear && $cardMonth < $currentMonth)) {
+            $this->log("Ошибка: срок действия карты истёк");
             return false;
         }
 
